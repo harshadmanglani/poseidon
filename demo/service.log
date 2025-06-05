@@ -1,0 +1,44 @@
+2025-06-05 10:00:00.000  INFO 12345 --- [  restartedMain] com.example.AppApplication       : Starting AppApplication
+2025-06-05 10:00:00.111  INFO 12345 --- [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer : Tomcat started on port(s): 8080
+2025-06-05 10:00:00.113  INFO 12345 --- [  restartedMain] com.example.AppApplication       : Started AppApplication in 1.234 seconds
+2025-06-05 10:00:01.002  INFO 12345 --- [nio-8080-exec-1] c.e.controller.UserController     : GET /api/user
+2025-06-05 10:00:01.004  INFO 12345 --- [nio-8080-exec-1] c.e.service.UserService           : Fetching user details
+2025-06-05 10:00:01.005  INFO 12345 --- [nio-8080-exec-1] c.e.repo.UserRepository           : Executing query: SELECT * FROM users WHERE id=1
+2025-06-05 10:00:01.006  INFO 12345 --- [nio-8080-exec-1] c.e.controller.UserController     : Responding with 200 OK
+2025-06-05 10:00:01.021  INFO 12345 --- [nio-8080-exec-2] c.e.controller.OrderController    : GET /api/order
+2025-06-05 10:00:01.022  INFO 12345 --- [nio-8080-exec-2] c.e.service.OrderService          : Fetching order list
+2025-06-05 10:00:01.023  INFO 12345 --- [nio-8080-exec-2] c.e.repo.OrderRepository          : SELECT * FROM orders WHERE user_id=1
+2025-06-05 10:00:01.024  INFO 12345 --- [nio-8080-exec-2] c.e.controller.OrderController    : Responding with 200 OK
+2025-06-05 10:00:01.030  INFO 12345 --- [nio-8080-exec-3] c.e.controller.ProductController  : GET /api/product
+2025-06-05 10:00:01.031  INFO 12345 --- [nio-8080-exec-3] c.e.service.ProductService        : Getting product catalog
+2025-06-05 10:00:01.032  INFO 12345 --- [nio-8080-exec-3] c.e.repo.ProductRepository        : SELECT * FROM products LIMIT 50
+2025-06-05 10:00:01.033  INFO 12345 --- [nio-8080-exec-3] c.e.controller.ProductController  : Responding with 200 OK
+2025-06-05 10:00:01.040  INFO 12345 --- [nio-8080-exec-4] c.e.controller.InventoryController: GET /api/inventory
+2025-06-05 10:00:01.041  INFO 12345 --- [nio-8080-exec-4] c.e.service.InventoryService      : Fetching inventory status
+2025-06-05 10:00:01.042  INFO 12345 --- [nio-8080-exec-4] c.e.repo.InventoryRepository      : SELECT * FROM inventory
+2025-06-05 10:00:01.043  INFO 12345 --- [nio-8080-exec-4] c.e.controller.InventoryController: Responding with 200 OK
+2025-06-05 10:00:02.001  INFO 12345 --- [nio-8080-exec-5] c.e.controller.UserController     : GET /api/user
+2025-06-05 10:00:02.002  INFO 12345 --- [nio-8080-exec-5] c.e.service.UserService           : Fetching user details
+2025-06-05 10:00:02.003  INFO 12345 --- [nio-8080-exec-5] c.e.repo.UserRepository           : Executing query: SELECT * FROM users WHERE id=10
+2025-06-05 10:00:02.004 ERROR 12345 --- [nio-8080-exec-5] c.e.controller.UserController     : Failed to read `user`.`gender`: java.lang.NullPointerException
+2025-06-05 10:00:02.004 ERROR 12345 --- [nio-8080-exec-5] c.e.controller.UserController     : Responding with 500 Internal Server Error
+2025-06-05 10:00:02.010  INFO 12345 --- [nio-8080-exec-6] c.e.controller.OrderController    : GET /api/order
+2025-06-05 10:00:02.011  INFO 12345 --- [nio-8080-exec-6] c.e.service.OrderService          : Fetching order list
+2025-06-05 10:00:02.012  INFO 12345 --- [nio-8080-exec-6] c.e.repo.OrderRepository          : SELECT * FROM orders WHERE user_id=1
+2025-06-05 10:00:02.013  INFO 12345 --- [nio-8080-exec-6] c.e.controller.OrderController    : Responding with 200 OK
+2025-06-05 10:00:02.020  INFO 12345 --- [nio-8080-exec-7] c.e.controller.ProductController  : GET /api/product
+2025-06-05 10:00:02.021  INFO 12345 --- [nio-8080-exec-7] c.e.service.ProductService        : Getting product catalog
+2025-06-05 10:00:02.022  INFO 12345 --- [nio-8080-exec-7] c.e.repo.ProductRepository        : SELECT * FROM products LIMIT 50
+2025-06-05 10:00:02.023  INFO 12345 --- [nio-8080-exec-7] c.e.controller.ProductController  : Responding with 200 OK
+2025-06-05 10:00:02.030  INFO 12345 --- [nio-8080-exec-8] c.e.controller.InventoryController: GET /api/inventory
+2025-06-05 10:00:02.031  INFO 12345 --- [nio-8080-exec-8] c.e.service.InventoryService      : Fetching inventory status
+2025-06-05 10:00:02.032  INFO 12345 --- [nio-8080-exec-8] c.e.repo.InventoryRepository      : SELECT * FROM inventory
+2025-06-05 10:00:02.033  INFO 12345 --- [nio-8080-exec-8] c.e.controller.InventoryController: Responding with 200 OK
+2025-06-05 10:00:03.001  INFO 12345 --- [nio-8080-exec-9] c.e.controller.UserController     : GET /api/user
+2025-06-05 10:00:03.002  INFO 12345 --- [nio-8080-exec-9] c.e.service.UserService           : Fetching user details
+2025-06-05 10:00:03.003  INFO 12345 --- [nio-8080-exec-9] c.e.repo.UserRepository           : Executing query: SELECT * FROM users WHERE id=10
+2025-06-05 10:00:03.004 ERROR 12345 --- [nio-8080-exec-9] c.e.controller.UserController     : Failed to read `user`.`gender`: java.lang.NullPointerException
+2025-06-05 10:00:03.004 ERROR 12345 --- [nio-8080-exec-9] c.e.controller.UserController     : Responding with 500 Internal Server Error
+2025-06-05 10:00:03.011  INFO 12345 --- [nio-8080-exec-1] c.e.controller.OrderController    : GET /api/order
+2025-06-05 10:00:03.012  INFO 12345 --- [nio-8080-exec-1] c.e.service.OrderService          : Fetching order list
+2025-06-05 10:00:03.013  INFO 12345 --- [nio-8080-exec-1] c.e.repo.OrderRepository          :
