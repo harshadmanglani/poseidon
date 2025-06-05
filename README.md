@@ -13,6 +13,8 @@ Use the config.yaml file to set up
 - API key for Anthropic and configure the model for analysis
 - configure a webhook (like your own service) which can receive a payload (forward to Slack, etc)
 
+<b>Poseidon uses AI to convert responses from your APIs to standard formats it can process. It doesn't matter how you return the operation records or logs or metrics.</b>
+
 ## What's next?
 1. Use greptile or some way to search your codebase
 2. Search your DB 

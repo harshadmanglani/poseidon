@@ -10,17 +10,9 @@ import (
 	"github.com/harshadmanglani/poseidon/workflows"
 )
 
-type Context struct {
-	Service   string `json:"service"`
-	Type      string `json:"type"`
-	ID        string `json:"id"`
-	Timestamp string `json:"timestamp"`
-}
-
 type InvokeRequest struct {
-	Callback string     `json:"callback"`
-	ID       string     `json:"id"`
-	Context  []*Context `json:"context"`
+	ID      string                `json:"id"`
+	Context workflows.ContextData `json:"context"`
 }
 
 func handleInvoke(w http.ResponseWriter, r *http.Request) {
@@ -35,8 +27,14 @@ func handleInvoke(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusAccepted)
-	json.NewEncoder(w).Encode(map[string]string{"status": "success"})
+	analysis, err := workflows.Invoke(req.ID, req.Context)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(analysis)
 }
 
 func StartServer() {
