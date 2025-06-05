@@ -1,4 +1,4 @@
-# Poseidon
+# Poseidon🔱
 An AI agent to investigate production outages (and soon minimize impact!)
 
 ## Current Scope
