@@ -8,10 +8,8 @@ Kind of vibe coded my way through this, so it just works. Lot of things I'll cle
 
 ## How to run
 Use the config.yaml file to set up
-- a Postgres store
 - HTTP info for getting incidents, operations, logs and metrics
 - API key for Anthropic and configure the model for analysis
-- configure a webhook (like your own service) which can receive a payload (forward to Slack, etc)
 
 <b>Poseidon can hanlde any API response from your internal data sources. It doesn't matter how you return the operation records or logs or metrics.</b>
 
