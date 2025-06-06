@@ -7,6 +7,7 @@ import (
 	"github.com/harshadmanglani/poseidon/clients"
 	"github.com/harshadmanglani/poseidon/config"
 	"github.com/harshadmanglani/poseidon/db"
+	"github.com/harshadmanglani/poseidon/utils"
 	"github.com/harshadmanglani/poseidon/workflows"
 )
 
@@ -33,11 +34,12 @@ func handleInvoke(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(analysis)
 }
 
 func StartServer() {
+	utils.Sugar.Infof("Starting Poseidon server on port 8080...")
 	http.HandleFunc("/invoke", handleInvoke)
 	http.ListenAndServe(":8080", nil)
 }

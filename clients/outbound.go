@@ -20,15 +20,15 @@ func NewClient(baseURL string) *OutboundClient {
 	}
 }
 
-func (c *OutboundClient) Get(path string, response interface{}) error {
+func (c *OutboundClient) Get(path string, response *map[string]interface{}) error {
 	return c.doRequest(http.MethodGet, path, nil, response)
 }
 
-func (c *OutboundClient) Post(path string, request interface{}, response interface{}) error {
+func (c *OutboundClient) Post(path string, request interface{}, response *map[string]interface{}) error {
 	return c.doRequest(http.MethodPost, path, request, response)
 }
 
-func (c *OutboundClient) doRequest(method, path string, request interface{}, response interface{}) error {
+func (c *OutboundClient) doRequest(method, path string, request interface{}, response *map[string]interface{}) error {
 	var body io.Reader
 	if request != nil {
 		jsonData, err := json.Marshal(request)
@@ -55,10 +55,13 @@ func (c *OutboundClient) doRequest(method, path string, request interface{}, res
 		return fmt.Errorf("request failed with status code: %d", resp.StatusCode)
 	}
 
-	if response != nil {
-		if err := json.NewDecoder(resp.Body).Decode(response); err != nil {
-			return fmt.Errorf("failed to decode response: %w", err)
-		}
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	if err := json.Unmarshal(bodyBytes, response); err != nil {
+		return fmt.Errorf("failed to unmarshal response: %w", err)
 	}
 
 	return nil

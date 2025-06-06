@@ -1,9 +1,8 @@
 package workflows
 
 import (
-	"encoding/json"
 	"fmt"
-	"reflect"
+	"strings"
 
 	"github.com/harshadmanglani/polaris"
 	"github.com/harshadmanglani/poseidon/clients"
@@ -25,12 +24,13 @@ type Operation struct {
 }
 
 type OperationsData struct {
+	OperationsHistory map[string]interface{} `json:"operations_history"`
 }
 
 func (o OperationsBuilder) GetBuilderInfo() polaris.BuilderInfo {
 	return polaris.BuilderInfo{
 		Consumes:  []polaris.IData{ContextData{}},
-		Produces:  nil,
+		Produces:  OperationsData{},
 		Optionals: nil,
 		Accesses:  nil,
 	}
@@ -40,39 +40,27 @@ func (o OperationsBuilder) Process(context polaris.BuilderContext) polaris.IData
 	if !config.PoseidonConf.Workflows.Metrics.Enabled {
 		return nil
 	}
+	ctx, ok := context.Get(ContextData{})
+	if !ok {
+		utils.Sugar.Errorf("Error retrieving ContextData from context: %v", context)
+		return nil
+	}
+	ct, _ := ctx.(ContextData)
 
-	operationsEndpoint := fmt.Sprintf("%s:%d",
-		config.PoseidonConf.Workflows.Operations.Endpoint,
+	operationsEndpoint := fmt.Sprintf(":%d%s",
 		config.PoseidonConf.Workflows.Operations.Port,
+		strings.Replace(config.PoseidonConf.Workflows.Operations.Endpoint, "{id}", ct.ID, -1),
 	)
 
-	var response interface{}
-	err := clients.OperationsClient.Get(operationsEndpoint, response)
+	response := make(map[string]interface{})
+	err := clients.OperationsClient.Get(operationsEndpoint, &response)
 	if err != nil {
 		utils.Sugar.Errorf("Error fetching operations from %s: %v", operationsEndpoint, err)
 		return nil
 	}
 
-	responseMap, ok := response.(map[string]interface{})
-	if !ok {
-		utils.Sugar.Errorf("Error converting response to map[string]interface{}: %v", err)
-		return nil
+	utils.Sugar.Infof("operations data processed successfully: %v", response)
+	return OperationsData{
+		OperationsHistory: response,
 	}
-
-	jsonStr, err := json.Marshal(responseMap)
-	if err != nil {
-		utils.Sugar.Errorf("Error marshalling response to JSON: %v", err)
-		return nil
-	}
-
-	operationsData, err := clients.Anthropic.ConvertResponse(string(jsonStr), reflect.TypeOf(OperationsData{}))
-	if err != nil {
-		utils.Sugar.Errorf("Error converting response to OperationsData: %v", err)
-		return nil
-	}
-
-	utils.Sugar.Infof("operations data processed successfully: %v", operationsData)
-	return operationsData
-
-	return nil
 }

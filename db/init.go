@@ -14,15 +14,11 @@ type PostgresDataStore struct {
 	db *sql.DB
 }
 
-var database *PostgresDataStore
-
 func Init() {
-	db, err := NewPostgresDataStore("postgresql://harshadmanglani@localhost:5432/postgres?sslmode=disable")
-	if err != nil {
-		panic("Failed to initialize PostgresDataStore: " + err.Error())
+	mockStorage := &MockStorage{
+		store: make(map[string]interface{}),
 	}
-	database = db
-	polaris.InitRegistry(database)
+	polaris.InitRegistry(mockStorage)
 }
 
 type Incident struct {
@@ -96,11 +92,7 @@ func (p *PostgresDataStore) Read(key string) (interface{}, bool) {
 		return nil, false
 	}
 
-	var value interface{}
-	if err := json.Unmarshal(jsonData, &value); err != nil {
-		return nil, false
-	}
-	return value, true
+	return jsonData, true
 }
 
 // WriteIncident creates a new incident
@@ -146,4 +138,17 @@ func (p *PostgresDataStore) UpdateIncident(incident *Incident) error {
 		return sql.ErrNoRows
 	}
 	return nil
+}
+
+type MockStorage struct {
+	store map[string]interface{}
+}
+
+func (ms *MockStorage) Read(key string) (interface{}, bool) {
+	val, ok := ms.store[key]
+	return val, ok
+}
+
+func (ms *MockStorage) Write(key string, val interface{}) {
+	ms.store[key] = val
 }

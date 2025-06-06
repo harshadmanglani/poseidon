@@ -1,9 +1,8 @@
 package workflows
 
 import (
-	"encoding/json"
 	"fmt"
-	"reflect"
+	"strings"
 
 	"github.com/harshadmanglani/polaris"
 	"github.com/harshadmanglani/poseidon/clients"
@@ -14,7 +13,7 @@ import (
 type IncidentsBuilder struct {
 }
 
-type IncidentsData struct {
+type Incident struct {
 	IncidentID  string
 	RootCause   string
 	Impact      string
@@ -23,6 +22,10 @@ type IncidentsData struct {
 	Severity    string
 	Status      string
 	CreatedAt   string
+}
+
+type IncidentsData struct {
+	Incidents map[string]interface{} `json:"incidents"`
 }
 
 func (i IncidentsBuilder) GetBuilderInfo() polaris.BuilderInfo {
@@ -41,36 +44,27 @@ func (i IncidentsBuilder) Process(context polaris.BuilderContext) polaris.IData 
 		return nil
 	}
 
-	incidentEndpoint := fmt.Sprintf("%s:%d",
-		config.PoseidonConf.Workflows.Incidents.Endpoint,
+	ctx, ok := context.Get(ContextData{})
+	if !ok {
+		utils.Sugar.Errorf("Error retrieving ContextData from context: %v", context)
+		return nil
+	}
+	ct, _ := ctx.(ContextData)
+
+	incidentEndpoint := fmt.Sprintf(":%d%s",
 		config.PoseidonConf.Workflows.Incidents.Port,
+		strings.Replace(config.PoseidonConf.Workflows.Incidents.Endpoint, "{id}", ct.ID, -1),
 	)
 
-	var response interface{}
-	err := clients.IncidentsClient.Get(incidentEndpoint, response)
+	response := make(map[string]interface{})
+	err := clients.IncidentsClient.Get(incidentEndpoint, &response)
 	if err != nil {
 		utils.Sugar.Errorf("Error fetching incidents from %s: %v", incidentEndpoint, err)
 		return nil
 	}
 
-	responseMap, ok := response.(map[string]interface{})
-	if !ok {
-		utils.Sugar.Errorf("Error converting response to map[string]interface{}: %v", err)
-		return nil
+	utils.Sugar.Infof("incident data processed successfully: %v", response)
+	return IncidentsData{
+		Incidents: response,
 	}
-
-	jsonStr, err := json.Marshal(responseMap)
-	if err != nil {
-		utils.Sugar.Errorf("Error marshalling response to JSON: %v", err)
-		return nil
-	}
-
-	incidentsData, err := clients.Anthropic.ConvertResponse(string(jsonStr), reflect.TypeOf(IncidentsData{}))
-	if err != nil {
-		utils.Sugar.Errorf("Error converting response to IncidentsData: %v", err)
-		return nil
-	}
-
-	utils.Sugar.Infof("incident data processed successfully: %v", incidentsData)
-	return incidentsData
 }

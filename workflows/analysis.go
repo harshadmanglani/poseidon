@@ -1,22 +1,19 @@
 package workflows
 
 import (
-	"fmt"
-
 	"github.com/harshadmanglani/polaris"
 	"github.com/harshadmanglani/poseidon/clients"
 	"github.com/harshadmanglani/poseidon/utils"
 )
 
 type AnalysisBuilder struct {
-	anthropicClient *clients.AnthropicClient
 }
 
 type AnalysisData struct {
-	RootCause string `json:"rootCause"`
-	Service   string `json:"service"`
-	StartTime string `json:"startTime"`
-	Summary   string `json:"summary"`
+	RootCause map[string]interface{} `json:"rootCause"`
+	Service   string                 `json:"service"`
+	StartTime string                 `json:"startTime"`
+	Summary   string                 `json:"summary"`
 }
 
 func (m AnalysisBuilder) GetBuilderInfo() polaris.BuilderInfo {
@@ -36,42 +33,44 @@ func (m AnalysisBuilder) GetBuilderInfo() polaris.BuilderInfo {
 }
 
 func (m AnalysisBuilder) Process(context polaris.BuilderContext) polaris.IData {
+	trigger, _ := context.Get(ContextData{})
 	logsData, logsPresent := context.Get(LogsData{})
-	incidentsData, incidentsPresent := context.Get(IncidentsData{})
 	metricsData, metricsPresent := context.Get(MetricsData{})
 	operationsData, operationsPresent := context.Get(OperationsData{})
 
-	if !logsPresent || !incidentsPresent || !metricsPresent || !operationsPresent {
+	if !logsPresent && !metricsPresent && !operationsPresent {
 		utils.Sugar.Error("Required data not present in context for analysis")
 		return nil
 	}
 
-	contextData := []string{
-		fmt.Sprintf("Logs: %v", logsData),
-		fmt.Sprintf("Incidents: %v", incidentsData),
-		fmt.Sprintf("Metrics: %v", metricsData),
-		fmt.Sprintf("Operations: %v", operationsData),
+	contextData := map[string]interface{}{
+		"trigger":    trigger.(ContextData),
+		"logs":       logsData.(LogsData).RawLogs,
+		"metrics":    metricsData.(MetricsData).Metrics,
+		"operations": operationsData.(OperationsData).OperationsHistory,
 	}
 
 	outputJson := `{
 		"rootCause": {"key": "value"},
 		"service": "serviceName",
 		"startTime": "2023-01-01T00:00:00Z",
-		"summary": "This is a summary of the analysis",
+		"summary": "This is a summary of the analysis, keep this limited to 100 words.",
 	}`
 
-	prompt := "Analyze this incident data and determine the root cause, impact, affected service and components"
+	prompt := "You are an expert in incident analysis. Given the following context data, analyze the situation and strictly follow the outputJson to return the analysis."
 
-	result, err := m.anthropicClient.Analyze(prompt, contextData, outputJson)
+	result, err := clients.Anthropic.Analyze(prompt, contextData, outputJson)
 	if err != nil {
 		return nil
 	}
 
+	utils.Sugar.Infof("Analysis result: %v", result)
+	resultMap := result.(map[string]interface{})
 	analysis := AnalysisData{
-		RootCause: result["rootCause"],
-		Service:   result["service"],
-		StartTime: result["startTime"],
-		Summary:   result["summary"],
+		RootCause: resultMap["rootCause"].(map[string]interface{}),
+		Service:   resultMap["service"].(string),
+		StartTime: resultMap["startTime"].(string),
+		Summary:   resultMap["summary"].(string),
 	}
 
 	return analysis

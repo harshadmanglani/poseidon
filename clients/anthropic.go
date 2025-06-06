@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"reflect"
+	"strings"
 )
 
 type AnthropicClient struct {
@@ -48,25 +49,20 @@ type AnalysisResponse struct {
 	Error   string            `json:"error,omitempty"`
 }
 
-func (c *AnthropicClient) Analyze(prompt string, context []string, outputJson string) (map[string]string, error) {
+func (c *AnthropicClient) Analyze(prompt string, context map[string]interface{}, outputJson string) (interface{}, error) {
 	endpoint := "https://api.anthropic.com/v1/messages"
 
-	systemMsg := fmt.Sprintf("You are an analysis assistant. Analyze the data and respond in this JSON format: %s", outputJson)
-
+	ctxJson, _ := json.Marshal(context)
 	messages := []Message{
-		{Role: "system", Content: systemMsg},
 		{Role: "user", Content: prompt},
-	}
-
-	for _, ctx := range context {
-		messages = append(messages, Message{Role: "user", Content: ctx})
+		{Role: "user", Content: "outputJson: " + outputJson},
+		{Role: "user", Content: "Context: " + string(ctxJson)},
 	}
 
 	reqBody := AnalysisRequest{
-		Model:     c.Model,
+		Model:     "claude-3-7-sonnet-20250219",
 		Messages:  messages,
-		MaxTokens: 1000,
-		System:    systemMsg,
+		MaxTokens: 3000,
 	}
 
 	jsonData, err := json.Marshal(reqBody)
@@ -95,16 +91,26 @@ func (c *AnthropicClient) Analyze(prompt string, context []string, outputJson st
 		return nil, fmt.Errorf("error reading response: %v", err)
 	}
 
-	var response AnalysisResponse
+	var response map[string]interface{}
 	if err := json.Unmarshal(body, &response); err != nil {
 		return nil, fmt.Errorf("error unmarshaling response: %v", err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("API request failed with status %d: %s", resp.StatusCode, response.Error)
+		return nil, fmt.Errorf("API request failed with status %d: %s", resp.StatusCode, response)
 	}
 
-	return response.Content, nil
+	content := response["content"].([]interface{})
+	output := content[0].(map[string]interface{})
+	outputText := output["text"].(string)
+	outputText = strings.Replace(outputText, "```json", "", -1)
+	outputText = strings.Replace(outputText, "```", "", -1)
+
+	outputMap := make(map[string]interface{})
+	if err := json.Unmarshal([]byte(outputText), &outputMap); err != nil {
+		return nil, fmt.Errorf("error unmarshaling output text: %v", err)
+	}
+	return outputMap, nil
 }
 
 func (c *AnthropicClient) ConvertResponse(input string, outputType reflect.Type) (interface{}, error) {
@@ -113,19 +119,16 @@ func (c *AnthropicClient) ConvertResponse(input string, outputType reflect.Type)
 		return nil, fmt.Errorf("error marshaling output type: %v", err)
 	}
 
-	prompt := fmt.Sprintf("Convert this data into the following JSON format: %s\n\nInput data:\n%s", string(outputJson), input)
-
-	systemMsg := "You are a data conversion assistant. Convert the input data to the specified JSON format. Output only the JSON."
+	prompt := fmt.Sprintf("You are a data conversion assistant. Convert the input data to the specified JSON format. Output only the JSON. \n Convert this data into the following JSON format: %s\n\nInput data:\n%s", string(outputJson), input)
 
 	messages := []Message{
-		{Role: "system", Content: systemMsg},
 		{Role: "user", Content: prompt},
 	}
 
 	reqBody := CompletionRequest{
-		Model:     c.Model,
+		Model:     "claude-3-7-sonnet-20250219",
 		Messages:  messages,
-		MaxTokens: 1000,
+		MaxTokens: 5000,
 	}
 
 	jsonData, err := json.Marshal(reqBody)

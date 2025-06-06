@@ -1,9 +1,8 @@
 package workflows
 
 import (
-	"encoding/json"
 	"fmt"
-	"reflect"
+	"strings"
 
 	"github.com/harshadmanglani/polaris"
 	"github.com/harshadmanglani/poseidon/clients"
@@ -15,7 +14,7 @@ type LogsBuilder struct {
 }
 
 type LogsData struct {
-	RawLogs []string `json:"raw_logs"`
+	RawLogs map[string]interface{} `json:"raw_logs"`
 }
 
 func (l LogsBuilder) GetBuilderInfo() polaris.BuilderInfo {
@@ -34,36 +33,27 @@ func (l LogsBuilder) Process(context polaris.BuilderContext) polaris.IData {
 		return nil
 	}
 
-	logsEndpoint := fmt.Sprintf("%s:%d",
-		config.PoseidonConf.Workflows.Logs.Endpoint,
+	ctx, ok := context.Get(ContextData{})
+	if !ok {
+		utils.Sugar.Errorf("Error retrieving ContextData from context: %v", context)
+		return nil
+	}
+	ct, _ := ctx.(ContextData)
+
+	logsEndpoint := fmt.Sprintf(":%d%s",
 		config.PoseidonConf.Workflows.Logs.Port,
+		strings.Replace(config.PoseidonConf.Workflows.Logs.Endpoint, "{id}", ct.ID, -1),
 	)
 
-	var response interface{}
-	err := clients.LogsClient.Get(logsEndpoint, response)
+	response := make(map[string]interface{})
+	err := clients.LogsClient.Get(logsEndpoint, &response)
 	if err != nil {
 		utils.Sugar.Errorf("Error fetching logs from %s: %v", logsEndpoint, err)
 		return nil
 	}
 
-	responseMap, ok := response.(map[string]interface{})
-	if !ok {
-		utils.Sugar.Errorf("Error converting response to map[string]interface{}: %v", err)
-		return nil
+	utils.Sugar.Infof("logs data processed successfully: %v", response)
+	return LogsData{
+		RawLogs: response,
 	}
-
-	jsonStr, err := json.Marshal(responseMap)
-	if err != nil {
-		utils.Sugar.Errorf("Error marshalling response to JSON: %v", err)
-		return nil
-	}
-
-	logsData, err := clients.Anthropic.ConvertResponse(string(jsonStr), reflect.TypeOf(LogsData{}))
-	if err != nil {
-		utils.Sugar.Errorf("Error converting response to LogsData: %v", err)
-		return nil
-	}
-
-	utils.Sugar.Infof("logs data processed successfully: %v", logsData)
-	return logsData
 }

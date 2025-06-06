@@ -13,7 +13,7 @@ Use the config.yaml file to set up
 - API key for Anthropic and configure the model for analysis
 - configure a webhook (like your own service) which can receive a payload (forward to Slack, etc)
 
-<b>Poseidon uses AI to convert responses from your APIs to standard formats it can process. It doesn't matter how you return the operation records or logs or metrics.</b>
+<b>Poseidon can hanlde any API response from your internal data sources. It doesn't matter how you return the operation records or logs or metrics.</b>
 
 ## What's next?
 1. Use greptile or some way to search your codebase
@@ -22,7 +22,7 @@ Use the config.yaml file to set up
 ## Demo
 Imagine a feature flag is turned on for gender based recommendations in a service, and the user API starts to fail because some early users didn't enter their gender and there was no validation on the db column back in the day.
 
-<img src="demo/grafana.png"/>
+<img src="demo/grafana.png" height="200" width="200"s/>
 
 Logs:
 ```
@@ -58,7 +58,17 @@ Operation records API response:
 }
 ```
 
-When all this is fed to Poseidon, this is the response it generates:
+When all this is fed to Poseidon via APIs, this is the response it generates (Claude-Sonnet-3.7):
 ```json
-
+{
+    "rootCause": {
+        "change": "Feature flag enabled without validating data integrity",
+        "featureFlag": "genderRecommendations",
+        "issue": "NullPointerException when accessing user.gender"
+    },
+    "service": "user-service",
+    "startTime": "2025-06-05T10:00:02Z",
+    "summary": "A NullPointerException occurred in UserController immediately after enabling the 'genderRecommendations' feature flag. The error happens when attempting to access user.gender attribute, which appears to be null for some users. The issue began exactly when the feature flag was enabled for A/B testing at 10:00:02Z, causing 500 errors for user API requests while other services remained unaffected."
+}
 ```
+<img src="demo/poseidon.png"/>

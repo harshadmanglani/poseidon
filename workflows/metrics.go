@@ -1,9 +1,8 @@
 package workflows
 
 import (
-	"encoding/json"
 	"fmt"
-	"reflect"
+	"strings"
 
 	"github.com/harshadmanglani/polaris"
 	"github.com/harshadmanglani/poseidon/clients"
@@ -22,7 +21,7 @@ type UnitMetric struct {
 }
 
 type MetricsData struct {
-	UnitMetrics []UnitMetric `json:"unit_metrics"`
+	Metrics map[string]interface{} `json:"metrics"`
 }
 
 func (m MetricsBuilder) GetBuilderInfo() polaris.BuilderInfo {
@@ -42,36 +41,27 @@ func (m MetricsBuilder) Process(context polaris.BuilderContext) polaris.IData {
 		return nil
 	}
 
-	metricsEndpoint := fmt.Sprintf("%s:%d",
-		config.PoseidonConf.Workflows.Metrics.Endpoint,
+	ctx, ok := context.Get(ContextData{})
+	if !ok {
+		utils.Sugar.Errorf("Error retrieving ContextData from context: %v", context)
+		return nil
+	}
+	ct, _ := ctx.(ContextData)
+
+	metricsEndpoint := fmt.Sprintf(":%d%s",
 		config.PoseidonConf.Workflows.Metrics.Port,
+		strings.Replace(config.PoseidonConf.Workflows.Metrics.Endpoint, "{id}", ct.ID, -1),
 	)
 
-	var response interface{}
-	err := clients.MetricsClient.Get(metricsEndpoint, response)
+	response := make(map[string]interface{})
+	err := clients.MetricsClient.Get(metricsEndpoint, &response)
 	if err != nil {
 		utils.Sugar.Errorf("Error fetching metrics from %s: %v", metricsEndpoint, err)
 		return nil
 	}
 
-	responseMap, ok := response.(map[string]interface{})
-	if !ok {
-		utils.Sugar.Errorf("Error converting response to map[string]interface{}: %v", err)
-		return nil
+	utils.Sugar.Infof("Metrics data processed successfully: %v", response)
+	return MetricsData{
+		Metrics: response,
 	}
-
-	jsonStr, err := json.Marshal(responseMap)
-	if err != nil {
-		utils.Sugar.Errorf("Error marshalling response to JSON: %v", err)
-		return nil
-	}
-
-	metricsData, err := clients.Anthropic.ConvertResponse(string(jsonStr), reflect.TypeOf(MetricsData{}))
-	if err != nil {
-		utils.Sugar.Errorf("Error converting response to MetricsData: %v", err)
-		return nil
-	}
-
-	utils.Sugar.Infof("Metrics data processed successfully: %v", metricsData)
-	return metricsData
 }

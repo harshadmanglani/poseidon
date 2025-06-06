@@ -1,29 +1,29 @@
 workflows:
   logs:
     enabled: true
-    host: "localhost"
-    port: 8080
+    host: "http://localhost"
+    port: 8090
     endpoint: "/logs/{id}"
   metrics:
     enabled: true
-    host: "localhost"
-    port: 9090
+    host: "http://localhost"
+    port: 8090
     endpoint: "/metrics/{id}"
   incidents:
-    enabled: true
-    host: "localhost"
-    port: 7070
+    enabled: false
+    host: "http://localhost"
+    port: 8090
     endpoint: "/incidents/{id}"
   operations:
     enabled: true
-    host: "localhost"
-    port: 6060
+    host: "http://localhost"
+    port: 8090
     endpoint: "/operations/{id}"
 
 
 clients:
   anthropic:
-    key: "your-anthropic-api-key"
+    key: "your-anthropic-key"
 
 database:
-  connection_string: postgresql://harshadmanglani@localhost:5432/postgres?sslmode=disable
+  connection_string: "not required for this version"
