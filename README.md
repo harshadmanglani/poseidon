@@ -9,7 +9,7 @@ Kind of vibe coded my way through this, so it just works. Lot of things I'll cle
 ## How to run
 Use the config.yaml file to set up
 - HTTP info for getting incidents, operations, logs and metrics
-- API key for Anthropic and configure the model for analysis
+- API key for Anthropic, by default Poseidon uses claude-sonnet-3.7
 
 <b>Poseidon can hanlde any API response from your internal data sources. It doesn't matter how you return the operation records or logs or metrics.</b>
 
@@ -70,3 +70,6 @@ When all this is fed to Poseidon via APIs, this is the response it generates (Cl
 }
 ```
 <img src="demo/poseidon.png"/>
+
+## CONTRIBUTIONS
+A CONTRIBUTING.MD file coming up, but in the meanwhile, hit me up over email or LinkedIn!
