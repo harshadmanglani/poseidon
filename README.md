@@ -70,3 +70,6 @@ When all this is fed to Poseidon via APIs, this is the response it generates (Cl
 }
 ```
 <img src="demo/poseidon.png"/>
+
+## CONTRIBUTIONS
+A CONTRIBUTING.MD file coming up, but in the meanwhile, hit me up over email or LinkedIn!
