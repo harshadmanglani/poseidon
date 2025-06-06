@@ -1,0 +1,29 @@
+{
+  "status": "success",
+  "data": {
+    "resultType": "matrix",
+    "result": [
+      {
+        "metric": {
+          "uri": "/api/user",
+          "status": "200"
+        },
+        "values": [
+          [1717581601, "1"],  
+          [1717581602, "1"]  
+        ]
+      },
+      {
+        "metric": {
+          "uri": "/api/user",
+          "status": "500"
+        },
+        "values": [
+          [1717581602, "1"],  
+          [1717581603, "1"],  
+          [1717581604, "1"]
+        ]
+      }
+    ]
+  }
+}

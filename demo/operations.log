@@ -1,0 +1,14 @@
+{
+  "status": "success",
+  "data": {
+    "event_type": "feature_flag_change",
+    "flag_name": "genderRecommendations",
+    "previous_value": false,
+    "new_value": true,
+    "changed_by": "feature-admin@company.com",
+    "timestamp": "2025-06-05T10:00:02Z",
+    "environment": "production",
+    "service": "user-service",
+    "comment": "Enabled gender-based recommendations for A/B test rollout"
+  }
+}
