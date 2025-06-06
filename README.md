@@ -22,7 +22,7 @@ Use the config.yaml file to set up
 ## Demo
 Imagine a feature flag is turned on for gender based recommendations in a service, and the user API starts to fail because some early users didn't enter their gender and there was no validation on the db column back in the day.
 
-<img src="demo/grafana.png" height="200" width="200"s/>
+<img src="demo/grafana.png" height="200" width="200"/>
 
 Logs:
 ```
