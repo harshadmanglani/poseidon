@@ -19,6 +19,9 @@ Use the config.yaml file to set up
 3. Configure stop loss actions
 4. Slack integration
 5. Maybe a netflix/dispatch integration
+6. Configurable prompts for better accuracy
+7. MCP integrations
+8. Configurable models and providers
 
 ## Demo
 Imagine a feature flag is turned on for gender based recommendations in a service, and the user API starts to fail because some early users didn't enter their gender and there was no validation on the db column back in the day.
