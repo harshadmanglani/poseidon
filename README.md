@@ -11,7 +11,7 @@ Use the config.yaml file to set up
 - HTTP info for getting incidents, operations, logs and metrics
 - API key for Anthropic, by default Poseidon uses claude-sonnet-3.7
 
-<b>Poseidon can hanlde any API response from your internal data sources. It doesn't matter how you return the operation records or logs or metrics.</b>
+<b>Poseidon can handle any API response from your internal data sources. It doesn't matter how you return the operation records or logs or metrics.</b>
 
 ## What's next?
 1. Use greptile or some way to search your codebase
