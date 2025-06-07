@@ -16,6 +16,9 @@ Use the config.yaml file to set up
 ## What's next?
 1. Use greptile or some way to search your codebase
 2. Search your DB 
+3. Configure stop loss actions
+4. Slack integration
+5. Maybe a netflix/dispatch integration
 
 ## Demo
 Imagine a feature flag is turned on for gender based recommendations in a service, and the user API starts to fail because some early users didn't enter their gender and there was no validation on the db column back in the day.
