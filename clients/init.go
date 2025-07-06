@@ -12,7 +12,7 @@ var OperationsClient *OutboundClient
 
 func Init() {
 	cfg := config.PoseidonConf
-	Anthropic = NewAnthropicClient(cfg.Clients.Anthropic.Key)
+	Anthropic = NewAnthropicClient(cfg.Clients.Anthropic.Model, cfg.Clients.Anthropic.Key)
 	if cfg.Workflows.Logs.Enabled {
 		LogsClient = NewClient(config.PoseidonConf.Workflows.Logs.Host)
 	}

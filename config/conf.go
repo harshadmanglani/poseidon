@@ -37,10 +37,11 @@ type Config struct {
 
 	Clients struct {
 		Anthropic struct {
-			Key string `yaml:"key"`
+			Model string `yaml:"model"`
+			Key   string `yaml:"key"`
 		} `yaml:"anthropic"`
 	} `yaml:"clients"`
-	
+
 	Database struct {
 		ConnectionString string `yaml:"connection_string"`
 	} `yaml:"database"`

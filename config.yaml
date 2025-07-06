@@ -23,7 +23,8 @@ workflows:
 
 clients:
   anthropic:
-    key: "your-anthropic-key"
+    model: "claude-3-7-sonnet-20250219"
+    key: "key"
 
 database:
   connection_string: "not required for this version"
